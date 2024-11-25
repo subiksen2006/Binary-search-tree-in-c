@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for a Binary Search Tree node
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a node into the BST
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        return createNode(data);
+    }
+
+    if (data < root->data) {
+        root->left = insert(root->left, data);  // Insert in the left subtree
+    } else if (data > root->data) {
+        root->right = insert(root->right, data);  // Insert in the right subtree
+    }
+
+    return root;
+}
+
+// Function to search for a node with given value
+struct Node* search(struct Node* root, int key) {
+    if (root == NULL || root->data == key) {
+        return root;
+    }
+
+    if (key < root->data) {
+        return search(root->left, key);  // Search in the left subtree
+    }
+
+    return search(root->right, key);  // Search in the right subtree
+}
+
+// In-order traversal (left, root, right)
+void inorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        inorderTraversal(root->left);  // Traverse left subtree
+        printf("%d ", root->data);      // Visit the root node
+        inorderTraversal(root->right); // Traverse right subtree
+    }
+}
+
+// Pre-order traversal (root, left, right)
+void preorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);      // Visit the root node
+        preorderTraversal(root->left);  // Traverse left subtree
+        preorderTraversal(root->right); // Traverse right subtree
+    }
+}
+
+// Post-order traversal (left, right, root)
+void postorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        postorderTraversal(root->left);  // Traverse left subtree
+        postorderTraversal(root->right); // Traverse right subtree
+        printf("%d ", root->data);       // Visit the root node
+    }
+}
+
+// Function to find the minimum value node in the BST
+struct Node* minValueNode(struct Node* node) {
+    struct Node* current = node;
+    while (current && current->left != NULL) {
+        current = current->left;
+    }
+    return current;
+}
+
+// Function to delete a node in the BST
+struct Node* deleteNode(struct Node* root, int key) {
+    if (root == NULL) {
+        return root;
+    }
+
+    if (key < root->data) {
+        root->left = deleteNode(root->left, key); // Search in left subtree
+    } else if (key > root->data) {
+        root->right = deleteNode(root->right, key); // Search in right subtree
+    } else {
+        // Node to be deleted found
+
+        // Case 1: Node has no children (leaf node)
+        if (root->left == NULL && root->right == NULL) {
+            free(root);
+            return NULL;
+        }
+
+        // Case 2: Node has only one child
+        if (root->left == NULL) {
+            struct Node* temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            struct Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+
+        // Case 3: Node has two children
+        struct Node* temp = minValueNode(root->right);  // Get the inorder successor
+        root->data = temp->data;  // Copy the inorder successor's content to this node
+        root->right = deleteNode(root->right, temp->data);  // Delete the inorder successor
+    }
+    return root;
+}
+
+// Main function to test the BST
+int main() {
+    struct Node* root = NULL;
+
+    // Insert nodes into the BST
+    root = insert(root, 50);
+    root = insert(root, 30);
+    root = insert(root, 20);
+    root = insert(root, 40);
+    root = insert(root, 70);
+    root = insert(root, 60);
+    root = insert(root, 80);
+
+    printf("In-order traversal: ");
+    inorderTraversal(root);
+    printf("\n");
+
+    printf("Pre-order traversal: ");
+    preorderTraversal(root);
+    printf("\n");
+
+    printf("Post-order traversal: ");
+    postorderTraversal(root);
+    printf("\n");
+
+    // Search for a node
+    int searchKey = 40;
+    struct Node* searchResult = search(root, searchKey);
+    if (searchResult != NULL) {
+        printf("Node with value %d found.\n", searchKey);
+    } else {
+        printf("Node with value %d not found.\n", searchKey);
+    }
+
+    // Delete a node
+    printf("Deleting node with value 20.\n");
+    root = deleteNode(root, 20);
+    printf("In-order traversal after deletion: ");
+    inorderTraversal(root);
+    printf("\n");
+
+    return 0;
+}
